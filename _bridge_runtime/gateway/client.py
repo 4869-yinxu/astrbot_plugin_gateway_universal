@@ -177,6 +177,7 @@ class OpenClawClient:
         final_response_text = ""
         buffer = ""
         event_count = 0
+        done_received = False
 
         async for chunk in response.content.iter_any():
             if not chunk:
@@ -194,6 +195,7 @@ class OpenClawClient:
 
                 if line == "data: [DONE]":
                     logger.info("[OpenClawClient] 收到 SSE 结束标记")
+                    done_received = True
                     break
 
                 if line.startswith("data: "):
@@ -221,6 +223,8 @@ class OpenClawClient:
                     except json.JSONDecodeError as e:
                         logger.warning(f"[OpenClawClient] 解析 SSE 失败: {e}")
                         continue
+            if done_received:
+                break
 
         logger.info(
             f"[OpenClawClient] SSE 完成: 事件数={event_count}, 累计={len(accumulated_text)}, 最终={len(final_response_text)}"

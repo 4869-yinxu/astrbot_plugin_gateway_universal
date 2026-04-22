@@ -1,42 +1,112 @@
 {
+  "gateway_backend": {
+    "type": "string",
+    "description": "连接行为模式：hermes（与 hermes_bridge 插件一致：文案/Hermes 网关/Responses 客户端）或 openclaw（与 clawdbot_bridge 一致）。仅影响本插件内部映射与默认项。",
+    "default": "hermes"
+  },
+  "unified_gateway_config_path": {
+    "type": "string",
+    "description": "可选。L1 gateway_bridges.json 绝对路径；留空为 data/config/gateway_bridges.json。L1 中 active_profile_by_plugin 建议使用键 gateway_universal。",
+    "default": ""
+  },
+  "gateway_profile_id": {
+    "type": "string",
+    "description": "可选。选用 L1 profiles 中的哪一个（优先于 L1 表）。",
+    "default": ""
+  },
+  "active_gateway_profile": {
+    "type": "string",
+    "description": "可选。与 gateway_profile_id 二选一。",
+    "default": ""
+  },
+  "user_brand_display": {
+    "type": "string",
+    "description": "可选。用户可见品牌名；留空时 hermes 模式为 Hermes，openclaw 模式为 OpenClaw。",
+    "default": ""
+  },
+  "hermes_gateway_url": {
+    "type": "string",
+    "description": "hermes 模式：网关 URL（可被 L1 覆盖）",
+    "default": "http://host.docker.internal:18789"
+  },
+  "hermes_agent_id": {
+    "type": "string",
+    "description": "hermes 模式：Agent ID",
+    "default": "clawdbotbot"
+  },
+  "hermes_backup_agent_id": {
+    "type": "string",
+    "description": "hermes 模式：备用 Agent",
+    "default": ""
+  },
+  "hermes_gateway_auth_token": {
+    "type": "string",
+    "description": "hermes 模式：与 API_SERVER_KEY 一致；可留空用环境变量",
+    "default": ""
+  },
   "clawdbot_gateway_url": {
     "type": "string",
-    "description": "OpenClaw Gateway URL",
+    "description": "openclaw 模式：Gateway URL（可被 L1 覆盖）",
     "default": "http://host.docker.internal:18789"
   },
   "clawdbot_agent_id": {
     "type": "string",
-    "description": "OpenClaw Agent ID",
+    "description": "openclaw 模式：Agent ID",
     "default": "clawdbotbot"
   },
   "gateway_auth_token": {
     "type": "string",
-    "description": "OpenClaw Gateway 认证 Token",
+    "description": "openclaw 模式：Bearer token",
     "default": ""
+  },
+  "gateway_model_template": {
+    "type": "string",
+    "description": "请求 model 模板，含 {agent_id}；留空时 hermes 默认 hermes:{agent_id}，openclaw 默认 openclaw:{agent_id}",
+    "default": ""
+  },
+  "gateway_send_hermes_headers": {
+    "type": "bool",
+    "description": "hermes 模式：是否发送 x-openclaw-* 头",
+    "default": false
   },
   "switch_commands": {
     "type": "list",
-    "description": "切换到 OpenClaw 模式的命令列表",
-    "default": ["/clawd", "/管理", "/clawdbot"]
+    "description": "进入网关模式的命令",
+    "default": ["/gateway", "/管理"]
   },
   "exit_commands": {
     "type": "list",
-    "description": "退出 OpenClaw 模式的命令列表",
+    "description": "退出命令",
     "default": ["/exit", "/退出", "/返回"]
   },
   "timeout": {
     "type": "int",
-    "description": "Gateway API 请求超时时间（秒）",
-    "default": 60
+    "description": "HTTP 超时秒数",
+    "default": 300
   },
   "default_session": {
     "type": "string",
-    "description": "默认会话名称（如 main、default、work 等）",
+    "description": "默认会话名",
     "default": "main"
   },
   "share_with_webui": {
     "type": "bool",
-    "description": "是否与 OpenClaw WebUI 共享会话（启用后所有管理员共享同一会话）",
+    "description": "是否与 WebUI 共享会话",
     "default": false
+  },
+  "study_groups": {
+    "type": "list",
+    "description": "学习群群号",
+    "default": []
+  },
+  "admin_qq_id": {
+    "type": "string",
+    "description": "管理员 QQ",
+    "default": ""
+  },
+  "admin_qq_ids": {
+    "type": "list",
+    "description": "管理员 QQ 列表",
+    "default": []
   }
 }

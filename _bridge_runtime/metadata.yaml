@@ -1,0 +1,5 @@
+name: astrbot_plugin_clawdbot_bridge
+author: 4869-yinxu
+desc: AstrBot 与 OpenClaw 桥接插件，允许管理员通过 QQ 与 OpenClaw AI Agent 交互
+version: 1.3.0
+repo: https://github.com/4869-yinxu/astrbot_plugin_clawdbot_bridge

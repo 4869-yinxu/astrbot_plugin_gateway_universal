@@ -1,5 +1,5 @@
-name: astrbot_plugin_clawdbot_bridge
+name: astrbot_plugin_gateway_universal
 author: 4869-yinxu
-desc: AstrBot 与 OpenClaw 桥接插件，允许管理员通过 QQ 与 OpenClaw AI Agent 交互
-version: 1.3.0
+desc: 通用网关桥接：配置 gateway_backend 为 hermes 或 openclaw，自带运行时，不依赖 hermes_bridge / clawdbot_bridge 插件目录
+version: 1.0.0
 repo: https://github.com/4869-yinxu/astrbot_plugin_clawdbot_bridge

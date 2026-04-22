@@ -1,0 +1,42 @@
+{
+  "clawdbot_gateway_url": {
+    "type": "string",
+    "description": "OpenClaw Gateway URL",
+    "default": "http://host.docker.internal:18789"
+  },
+  "clawdbot_agent_id": {
+    "type": "string",
+    "description": "OpenClaw Agent ID",
+    "default": "clawdbotbot"
+  },
+  "gateway_auth_token": {
+    "type": "string",
+    "description": "OpenClaw Gateway 认证 Token",
+    "default": ""
+  },
+  "switch_commands": {
+    "type": "list",
+    "description": "切换到 OpenClaw 模式的命令列表",
+    "default": ["/clawd", "/管理", "/clawdbot"]
+  },
+  "exit_commands": {
+    "type": "list",
+    "description": "退出 OpenClaw 模式的命令列表",
+    "default": ["/exit", "/退出", "/返回"]
+  },
+  "timeout": {
+    "type": "int",
+    "description": "Gateway API 请求超时时间（秒）",
+    "default": 60
+  },
+  "default_session": {
+    "type": "string",
+    "description": "默认会话名称（如 main、default、work 等）",
+    "default": "main"
+  },
+  "share_with_webui": {
+    "type": "bool",
+    "description": "是否与 OpenClaw WebUI 共享会话（启用后所有管理员共享同一会话）",
+    "default": false
+  }
+}

@@ -1,161 +1,77 @@
-# AstrBot OpenClaw Bridge 插件
+# astrbot_plugin_gateway_universal
 
-AstrBot 与 OpenClaw 的桥接插件，允许管理员通过 QQ 消息直接与 OpenClaw AI Agent 交互，执行系统管理、文档生成等任务。
+通用网关桥接插件（推荐入口）。  
+一个插件里同时支持 `hermes` / `openclaw` 两种连接行为，通过配置切换，不需要再分别启用 `hermes_bridge` 和 `clawdbot_bridge`。
 
-## 功能特性
+## 目录说明
 
-- 🔐 **管理员专属**：仅管理员可使用，确保安全
-- 🔄 **模式切换**：通过指令在 AstrBot 和 OpenClaw 模式间切换
-- 💬 **会话隔离**：每个用户在每个群组/私聊都有独立会话
-- 🛠️ **工具执行**：支持 OpenClaw 的工具调用（如执行系统命令）
-- 📡 **流式响应**：使用 SSE 流式传输，确保获取完整的工具执行结果
-- 📊 **状态可视化**：支持命令查看当前模式、会话与关键配置
-- 🧪 **初始化自检**：一键检查配置完整性与 Gateway 连通性
+- `main.py`: 插件主入口（`gateway_universal`）
+- `_bridge_runtime/`: 内置桥接运行时
+- `_gateway_lib/`: 公共能力（L1 合并、`/v1/responses` 客户端、解析器）
+- `_conf_schema.json`: 配置字段定义
 
-## 安装
+## 最小配置（Hermes）
 
-将插件目录复制到 AstrBot 的 `data/plugins/` 目录下，重启 AstrBot 即可。
+配置文件路径：
 
-```bash
-# 如果使用 Docker
-docker restart astrbot
-```
+- `AstrBot/data/config/astrbot_plugin_gateway_universal_config.json`
 
-## 配置
-
-在 AstrBot 管理面板中配置插件，或直接编辑配置文件。
-
-### 配置项说明
-
-| 配置项 | 类型 | 默认值 | 说明 |
-|--------|------|--------|------|
-| `clawdbot_gateway_url` | string | `http://host.docker.internal:18789` | OpenClaw Gateway 地址 |
-| `clawdbot_agent_id` | string | `clawdbotbot` | OpenClaw Agent ID |
-| `gateway_auth_token` | string | `""` | Gateway 认证 Token（如果启用了认证） |
-| `switch_commands` | list | `["/clawd", "/管理", "/clawdbot"]` | 切换到 OpenClaw 模式的命令 |
-| `exit_commands` | list | `["/exit", "/退出", "/返回"]` | 退出 OpenClaw 模式的命令 |
-| `timeout` | int | `60` | API 请求超时时间（秒），建议设为 300 |
-| `default_session` | string | `main` | 默认会话名称 |
-| `share_with_webui` | bool | `false` | 是否与 OpenClaw WebUI 共享会话 |
-
-### 配置示例
+示例：
 
 ```json
 {
-  "clawdbot_gateway_url": "http://host.docker.internal:18789",
-  "clawdbot_agent_id": "clawdbotbot",
-  "gateway_auth_token": "your-token-here",
-  "switch_commands": ["/clawd", "/管理", "/clawdbot"],
-  "exit_commands": ["/exit", "/退出", "/返回"],
-  "timeout": 300,
-  "default_session": "main",
-  "share_with_webui": true
+  "gateway_backend": "hermes",
+  "hermes_gateway_url": "http://host.docker.internal:8642",
+  "hermes_agent_id": "clawdbotbot",
+  "hermes_gateway_auth_token": "YOUR_API_SERVER_KEY",
+  "admin_qq_id": "2337302325",
+  "admin_qq_ids": ["2337302325"]
 }
 ```
 
-### 注意事项
+说明：
 
-- **Docker 环境**：如果 AstrBot 运行在 Docker 中，Gateway URL 应使用 `host.docker.internal` 而非 `localhost`
-- **超时设置**：如果 Agent 需要执行耗时操作（如系统命令），建议将 `timeout` 设为 300 秒
-- **认证 Token**：需要与 OpenClaw Gateway 配置的 `gateway.auth.token` 一致
-- **会话共享**：
-  - 启用 `share_with_webui: true` 后，QQ 和 WebUI 将共享同一个会话
-  - 所有管理员在 QQ 中会共享同一个对话历史
-  - 适合单人使用或团队协作场景
-  - 如果需要每个用户独立的会话，保持 `share_with_webui: false`
+- `hermes_gateway_auth_token` 是 **Hermes 网关访问密钥**（通常对应 Hermes 的 `API_SERVER_KEY`）。
+- 不是上游阿里云模型 `sk-...`。
 
-## 使用方法
+## 切换后端
 
-### 切换到 OpenClaw 模式
+- `gateway_backend: "hermes"`：Hermes 行为
+- `gateway_backend: "openclaw"`：OpenClaw 行为
 
-```
-/clawd 帮我检查系统状态
-```
+## 常用命令
 
-或先切换模式，再发送消息：
+- 进入网关模式：默认 `"/hermes"`, `"/管理"`, `"/clawdbot"`
+- 退出网关模式：默认 `"/exit"`, `"/退出"`, `"/返回"`
 
-```
-/clawd
-```
+可在配置里通过 `switch_commands` / `exit_commands` 覆盖。
 
-之后发送的所有消息都会转发给 OpenClaw，直到退出。
+## L1 统一配置（可选）
 
-### 会话管理
+如果你使用 `data/config/gateway_bridges.json`，可在本插件配置中指定：
 
-OpenClaw 支持多个独立的对话会话，每个会话有独立的上下文：
+- `unified_gateway_config_path`
+- `gateway_profile_id`（或 `active_gateway_profile`）
 
-**切换到指定会话：**
-```
-/clawd session work
-```
+优先级：
 
-**查看当前会话：**
-```
-/clawd session
-```
-
-**使用场景示例：**
-- `work` 会话：处理工作相关任务
-- `home` 会话：处理个人事务
-- `dev` 会话：开发调试专用
-
-每个会话的对话历史相互独立，互不干扰。
-
-### 状态与配置查看
-
-**查看运行状态：**
-```
-/clawd status
-```
-
-**查看生效配置（敏感字段脱敏）：**
-```
-/clawd config
-```
-
-**执行初始化检查（配置 + 网关连通性）：**
-```
-/clawd init
-```
-
-### 退出 OpenClaw 模式
-
-```
-/退出
-```
-
-或
-
-```
-/返回
-```
-
-## 前置要求
-
-1. **OpenClaw Gateway** 已运行并监听指定端口
-2. **AstrBot** 已配置管理员 ID（在 `cmd_config.json` 的 `admins_id` 中）
-3. 如果 Gateway 启用了认证，需要配置正确的 Token
+1. L2: `gateway_profile_id` / `active_gateway_profile`
+2. L1: `active_profile_by_plugin["gateway_universal"]`
+3. L1: `default_profile`
 
 ## 常见问题
 
-### 响应不完整
+### 1) 401 invalid_api_key
 
-如果只收到初始回复而没有工具执行结果：
-- 检查 `timeout` 配置是否足够长（建议 300 秒）
-- 确认 OpenClaw Gateway 版本支持流式响应
+- AstrBot 传给 Hermes 的网关密钥错误（`hermes_gateway_auth_token` 不匹配）
 
-### 认证失败
+### 2) 403 AllocationQuota.FreeTierOnly
 
-如果日志显示 `401 Unauthorized`：
-- 检查 `gateway_auth_token` 是否正确
-- 确认 Gateway 的认证配置
+- 上游模型账号免费额度耗尽或处于“仅免费模式”
+- 需在模型平台开启付费/按量
 
-### 连接失败
+### 3) 同时启用多个桥接插件
 
-如果无法连接到 Gateway：
-- 检查 Gateway 是否正在运行
-- 检查 URL 配置（Docker 环境使用 `host.docker.internal`）
+- 建议只启用 `gateway_universal`
+- 与 `hermes_bridge` / `clawdbot_bridge` 同时启用可能产生重复处理或冲突
 
-## 许可证
-
-MIT License
